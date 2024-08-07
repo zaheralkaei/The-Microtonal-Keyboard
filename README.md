@@ -1,4 +1,4 @@
-# themicrotonalkeyboard
+# The Microtonal Keyboard
 A microtonal keyboard with different EDOs (equal divisions per octave)
 
 This web application is designed to provide a microtonal keyboard interface with various equal divisions of the octave (EDO) and drum machine functionality. It allows users to experiment with different microtonal scales and create rhythms using synthesized drum sounds.
