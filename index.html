@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Microtonal MIDI Keyboard 1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Styles for the body and keyboard keys */
+        body {
+            background-color: #F0F0F0; 
+            background-image: radial-gradient(#CCCCCC 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #000000; 
+            font-family: 'Roboto Mono', monospace;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .key {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            margin: 4px;
+            cursor: pointer;
+            border-radius: 50%;
+            background-color: #555555; 
+            color: #F0F0F0; 
+            line-height: 60px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #000000; 
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .key.pressed {
+            background-color: #FF6F61; 
+            color: #FFFFFF; 
+            transform: scale(1.1);
+        }
+
+        /* Styles for control buttons and sliders */
+        .controls button, .controls select {
+            margin: 5px;
+            padding: 10px;
+            border: 2px solid #000000; 
+            background-color: #4e4e4e; 
+            color: #F0F0F0; 
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .controls button:hover, .controls select:hover {
+            background-color: #FF6F61; 
+            color: #FFFFFF; 
+            border-color: #333333; 
+        }
+
+        .controls button.active {
+            background-color: #FF6F61; 
+            color: #FFFFFF; 
+        }
+
+        /* Styles for volume, tempo, and drum volume sliders */
+        .slider-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slider-label {
+            margin-right: 10px;
+        }
+
+        #volume-slider, #tempo-slider, #drum-volume-slider {
+            width: 300px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 10px;
+            background: #CCCCCC; 
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        #volume-slider:hover, #tempo-slider:hover, #drum-volume-slider:hover {
+            opacity: 1;
+        }
+
+        #volume-slider::-webkit-slider-thumb, #tempo-slider::-webkit-slider-thumb, #drum-volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #FF6F61; 
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
+        #volume-slider::-moz-range-thumb, #tempo-slider::-moz-range-thumb, #drum-volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #FF6F61; 
+            cursor: pointer;
+            border-radius: 15px;
+        }
+
+        /* Styles for drum pads and progress steps */
+        .drum-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .drum-row label {
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        .drum-pad {
+            padding: 20px;
+            background-color: #555555; 
+            border: 2px solid #000000; 
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 2px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .drum-pad.active {
+            background-color: #FF6F61; 
+            color: #FFFFFF; 
+            transform: scale(1.1);
+        }
+
+        .drum-pad.current {
+            background-color: #333333; 
+            color: #FFFFFF; 
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 10px;
+            background-color: #CCCCCC; 
+            margin: 2px;
+        }
+
+        .progress-step.current {
+            background-color: #FF6F61; 
+        }
+
+        .key-octave {
+            margin-bottom: 20px; /* Add margin between octaves */
+        }
+
+        /* Styles for the About popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 500px;
+            background-color: #FFFFFF;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .popup.active {
+            display: block;
+        }
+
+        .popup h2 {
+            margin-top: 0;
+        }
+
+        .popup p {
+            margin-bottom: 20px;
+        }
+
+        .popup .close-btn {
+            background-color: #FF6F61;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Styles for the About button */
+        #about-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #FF6F61; 
+            color: #FFFFFF;
+            border: 2px solid #000000; 
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #about-btn:hover {
+            background-color: #F0F0F0; 
+            color: #FF6F61; 
+        }
+    </style>
+</head>
+<body>
+    <h1>The Microtonal MIDI Keyboard 1.0</h1>
+    <p>by <a href="https://github.com/zaheralkaei" target="_blank" style="color: #333333;">Zaher Alkaei</a></p>
+    <div id="keyboard-container">
+        <div id="keyboard">
+            <!-- Keys will be generated by JavaScript -->
+        </div>
+    </div>
+    <div class="controls">
+        <select id="edo-select">
+            <option value="5">5 EDO</option>
+            <option value="7">7 EDO</option>
+            <option value="9">9 EDO</option>
+            <option value="12" selected>12 EDO</option>
+            <option value="17">17 EDO</option>
+            <option value="19">19 EDO</option>
+            <option value="22">22 EDO</option>
+            <option value="24">24 EDO</option>
+            <option value="31">31 EDO</option>
+            <option value="33">33 EDO</option>
+            <option value="53">53 EDO</option>
+        </select>
+        <select id="octave-select">
+            <option value="1" selected>1 Octave</option>
+            <option value="2">2 Octaves</option>
+            <option value="3">3 Octaves</option>
+        </select>
+        <button id="toggle-reverb">Toggle Reverb</button>
+        <button id="toggle-arpeggiator">Toggle Arpeggiator</button>
+        <select id="synth-select">
+            <option value="sine" selected>Sine Synth</option>
+            <option value="square">Square Synth</option>
+            <option value="triangle">Triangle Synth</option>
+            <option value="sawtooth">Sawtooth Synth</option>
+        </select>
+    </div>
+    <div id="volume-container">
+        <div class="slider-container">
+            <label for="volume-slider" class="slider-label">Volume (%)</label>
+            <input type="range" id="volume-slider" min="0" max="100" value="50">
+            <span id="volume-value">50%</span>
+        </div>
+        <div class="slider-container">
+            <label for="tempo-slider" class="slider-label">Tempo (BPM)</label>
+            <input type="range" id="tempo-slider" min="30" max="240" value="120">
+            <span id="tempo-value">120 BPM</span>
+        </div>
+        <div class="slider-container">
+            <label for="drum-volume-slider" class="slider-label">Drum Volume (%)</label>
+            <input type="range" id="drum-volume-slider" min="0" max="100" value="50">
+            <span id="drum-volume-value">50%</span>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="play-stop">Play Drum Machine</button>
+        <button id="reverb-button" class="effect-button">Reverb</button>
+        <button id="distortion-button" class="effect-button">Distortion</button>
+    </div>
+    <div class="controls">
+        <label for="length">Rhythm Length:</label>
+        <select id="length">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+        </select>
+        <label for="preset">Preset Rhythms:</label>
+        <select id="preset">
+            <option value="standard">Standard</option>
+            <option value="electro">Electro</option>
+            <option value="techno">Techno</option>
+            <option value="pop">Pop</option>
+            <option value="rock">Rock</option>
+            <option value="house">House</option>
+            <option value="funk">Funk</option>
+            <option value="jazz">Jazz</option>
+            <option value="progressive">Progressive</option>
+            <option value="progressive2">Progressive 2</option>
+        </select>
+        <label for="drum-sound">Drum Sound:</label>
+        <select id="drum-sound">
+            <option value="standard">Standard</option>
+            <option value="electro">Electro</option>
+        </select>
+    </div>
+    <div id="drum-pads">
+        <!-- Drum pads will be generated here by JavaScript -->
+    </div>
+
+    <button id="about-btn">About</button>
+
+    <div id="about-popup" class="popup">
+        <h2>About The Microtonal MIDI Keyboard 1.0</h2>
+        <p>This web application is designed to provide a microtonal keyboard interface with various equal divisions of the octave (EDO) and drum machine functionality. It allows users to experiment with different microtonal scales and create rhythms using synthesized drum sounds.</p>
+        <p>The application is built using the Tone.js library for audio synthesis and manipulation.</p>
+        <p>At the moment there is no mappying to the computer keyboard. You can control this application by using the mouse cursor or a touchscreen.</p>
+        <p>Developed by <a href="https://github.com/zaheralkaei" target="_blank">Zaher Alkaei</a>. You can find the source code on <a href="https://github.com/zaheralkaei" target="_blank">GitHub</a>.</p>
+        <button class="close-btn" onclick="toggleAbout()">Close</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.js"></script>
+    <script>
+        // Constants and configurations
+        const baseFrequency = 261.63; // C4 frequency
+        const edoConfigs = {
+            5: { keys: 5, rows: 1 },
+            7: { keys: 7, rows: 1 },
+            9: { keys: 9, rows: 1 },
+            12: { keys: 12, rows: 1 },
+            17: { keys: 17, rows: 2 },
+            19: { keys: 19, rows: 2 },
+            22: { keys: 22, rows: 2 },
+            24: { keys: 24, rows: 2 },
+            31: { keys: 31, rows: 2 },
+            33: { keys: 33, rows: 2 },
+            53: { keys: 53, rows: 2 }
+        };
+
+        // Audio context and nodes
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const keys = {};
+        let reverbNode = createReverb();
+        let isReverbOn = false;
+        let isArpeggiatorOn = false;
+        let arpeggiatorInterval = null;
+        let arpeggiatorNotes = [];
+        let arpeggiatorIndex = 0;
+        let masterGainNode = context.createGain();
+        masterGainNode.connect(context.destination);
+        let tempo = 120;
+
+        // Synth configurations
+        const synthConfigs = {
+            sine: {
+                volume: -8,
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.3, release: 1.2 }
+            },
+            square: {
+                volume: -8,
+                oscillator: { type: "square" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.3, release: 1.2 }
+            },
+            triangle: {
+                volume: -8,
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.3, release: 1.2 }
+            },
+            sawtooth: {
+                volume: -8,
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.3, release: 1.2 }
+            }
+        };
+
+        let currentSynth = new Tone.PolySynth(Tone.Synth, synthConfigs.sine).toDestination();
+
+        // Calculate frequencies for given EDO and base frequency
+        function calculateFrequencies(edo, octaves, baseFreq = 261.63) {
+            let frequencies = [];
+            for (let o = 0; o < octaves; o++) {
+                for (let i = 0; i < edo; i++) {
+                    frequencies.push(baseFreq * Math.pow(2, (i + o * edo) / edo));
+                }
+            }
+            return frequencies;
+        }
+
+        // Create a key element
+        function createKey(label, frequency) {
+            const key = document.createElement('div');
+            key.className = 'key';
+            key.dataset.frequency = frequency;
+            key.innerText = label;
+            key.addEventListener('mousedown', () => handleKeyToggle(frequency, key));
+            key.addEventListener('mouseup', () => handleKeyUp(frequency, key));
+            key.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleKeyToggle(frequency, key);
+            });
+            key.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                handleKeyUp(frequency, key);
+            });
+            return key;
+        }
+
+        // Generate keyboard keys based on selected EDO and octaves
+        function generateKeyboard(edo, octaves) {
+            const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
+            const config = edoConfigs[edo];
+            const frequencies = calculateFrequencies(edo, octaves);
+            let rows = [];
+
+            for (let o = 0; o < octaves; o++) {
+                let octaveContainer = document.createElement('div');
+                octaveContainer.className = 'key-octave';
+
+                let row1 = document.createElement('div');
+                row1.className = 'key-row';
+                let row2 = document.createElement('div');
+                row2.className = 'key-row';
+
+                for (let i = 0; i < config.keys; i++) {
+                    let key;
+                    const freqIndex = i + (o * config.keys);
+                    if (config.rows === 2) {
+                        if (i % 2 === 0) {
+                            key = createKey(`${i + 1 + (o * config.keys)}`, frequencies[freqIndex]);
+                            row2.appendChild(key);
+                        } else {
+                            key = createKey(`${i + 1 + (o * config.keys)}`, frequencies[freqIndex]);
+                            row1.appendChild(key);
+                        }
+                    } else {
+                        key = createKey(`${i + 1 + (o * config.keys)}`, frequencies[freqIndex]);
+                        row1.appendChild(key);
+                    }
+                }
+                octaveContainer.appendChild(row1);
+                if (config.rows === 2) {
+                    octaveContainer.appendChild(row2);
+                }
+                rows.push(octaveContainer);
+            }
+
+            rows.forEach(row => keyboard.appendChild(row));
+        }
+
+        // Handle key toggle (mousedown/touchstart)
+        function handleKeyToggle(frequency, key) {
+            if (isArpeggiatorOn) {
+                if (arpeggiatorNotes.some(n => n.frequency === frequency)) {
+                    arpeggiatorNotes = arpeggiatorNotes.filter(n => n.frequency !== frequency);
+                    key.classList.remove('pressed');
+                } else {
+                    arpeggiatorNotes.push({ frequency, key });
+                    key.classList.add('pressed');
+                }
+            } else {
+                handleKeyDown(frequency, key);
+            }
+        }
+
+        // Handle key down (mousedown/touchstart)
+        function handleKeyDown(frequency, key) {
+            if (!keys[frequency]) {
+                currentSynth.triggerAttack(frequency);
+                keys[frequency] = true;
+                key.classList.add('pressed');
+            }
+        }
+
+        // Handle key up (mouseup/touchend)
+        function handleKeyUp(frequency, key) {
+            if (keys[frequency]) {
+                currentSynth.triggerRelease(frequency);
+                delete keys[frequency];
+                key.classList.remove('pressed');
+            }
+        }
+
+        // Toggle reverb effect
+        function toggleReverb() {
+            isReverbOn = !isReverbOn;
+            if (isReverbOn) {
+                currentSynth.connect(reverbNode);
+            } else {
+                currentSynth.disconnect(reverbNode);
+            }
+            document.getElementById('toggle-reverb').classList.toggle('active', isReverbOn);
+        }
+
+        // Create reverb node
+        function createReverb() {
+            const convolver = new Tone.Reverb(2).toDestination();
+            return convolver;
+        }
+
+        // Toggle arpeggiator functionality
+        function toggleArpeggiator() {
+            isArpeggiatorOn = !isArpeggiatorOn;
+            if (isArpeggiatorOn) {
+                arpeggiatorInterval = setInterval(() => {
+                    if (arpeggiatorNotes.length > 0) {
+                        const noteInfo = arpeggiatorNotes[arpeggiatorIndex];
+                        currentSynth.triggerAttackRelease(noteInfo.frequency, "8n");
+                        updateKeyColor(noteInfo.key);
+                        arpeggiatorIndex = (arpeggiatorIndex + 1) % arpeggiatorNotes.length;
+                    }
+                }, 60000 / tempo); // Adjust the interval for the arpeggiator speed
+            } else {
+                clearInterval(arpeggiatorInterval);
+                arpeggiatorNotes = [];
+                arpeggiatorIndex = 0;
+                resetKeyColors();
+            }
+            document.getElementById('toggle-arpeggiator').classList.toggle('active', isArpeggiatorOn);
+        }
+
+        // Update key color for arpeggiator
+        function updateKeyColor(key) {
+            key.classList.add('pressed');
+            setTimeout(() => {
+                key.classList.remove('pressed');
+            }, 500);
+        }
+
+        // Reset key colors
+        function resetKeyColors() {
+            document.querySelectorAll('.key').forEach(key => {
+                key.classList.remove('pressed');
+            });
+        }
+
+        // Handle volume change
+        function handleVolumeChange(event) {
+            const volume = event.target.value;
+            currentSynth.volume.value = volume - 50;
+            document.getElementById('volume-value').innerText = `${volume}%`;
+        }
+
+        // Handle tempo change
+        function handleTempoChange(event) {
+            tempo = event.target.value;
+            document.getElementById('tempo-value').innerText = `${tempo} BPM`;
+            if (isArpeggiatorOn) {
+                clearInterval(arpeggiatorInterval);
+                arpeggiatorInterval = setInterval(() => {
+                    if (arpeggiatorNotes.length > 0) {
+                        const noteInfo = arpeggiatorNotes[arpeggiatorIndex];
+                        currentSynth.triggerAttackRelease(noteInfo.frequency, "8n");
+                        updateKeyColor(noteInfo.key);
+                        arpeggiatorIndex = (arpeggiatorIndex + 1) % arpeggiatorNotes.length;
+                    }
+                }, 60000 / tempo); // Adjust the interval for the arpeggiator speed
+            }
+            Tone.Transport.bpm.value = tempo;
+        }
+
+        // Handle drum volume change
+        function handleDrumVolumeChange(event) {
+            drumVolume = event.target.value;
+            drumEffectChain.gain.setValueAtTime(drumVolume / 100, Tone.context.currentTime);
+            document.getElementById('drum-volume-value').innerText = `${drumVolume}%`;
+        }
+
+        // Handle synth change
+        function handleSynthChange(event) {
+            const selectedSynth = event.target.value;
+            currentSynth = new Tone.PolySynth(Tone.Synth, synthConfigs[selectedSynth]).toDestination();
+            if (isReverbOn) {
+                currentSynth.connect(reverbNode);
+            }
+        }
+
+        // Event listeners for EDO and octave selection
+        document.getElementById('edo-select').addEventListener('change', () => {
+            const edo = parseInt(document.getElementById('edo-select').value);
+            const octaves = parseInt(document.getElementById('octave-select').value);
+            generateKeyboard(edo, octaves);
+        });
+
+        document.getElementById('octave-select').addEventListener('change', () => {
+            const edo = parseInt(document.getElementById('edo-select').value);
+            const octaves = parseInt(document.getElementById('octave-select').value);
+            generateKeyboard(edo, octaves);
+        });
+
+        // Event listeners for reverb, arpeggiator, and synth selection
+        document.getElementById('toggle-reverb').addEventListener('click', toggleReverb);
+        document.getElementById('toggle-arpeggiator').addEventListener('click', toggleArpeggiator);
+        document.getElementById('volume-slider').addEventListener('input', handleVolumeChange);
+        document.getElementById('tempo-slider').addEventListener('input', handleTempoChange);
+        document.getElementById('drum-volume-slider').addEventListener('input', handleDrumVolumeChange);
+        document.getElementById('synth-select').addEventListener('change', handleSynthChange);
+
+        // About button event listener
+        document.getElementById('about-btn').addEventListener('click', toggleAbout);
+
+        // Generate default keyboard (12 EDO, 1 octave)
+        generateKeyboard(12, 1);
+
+        // Drum machine implementation
+        const drumPadsContainer = document.getElementById('drum-pads');
+        const drumEffectChain = new Tone.Gain().toDestination();
+        const drumReverb = new Tone.Reverb(2).toDestination();
+        const drumDistortion = new Tone.Distortion(0.4).toDestination();
+        let currentDrumPreset = 'standard';
+        let currentSynths = {};
+        let rhythmLength = parseInt(document.getElementById('length').value);
+        let isPlaying = false;
+        let drumVolume = 50;
+
+        const sounds = ['hihat', 'snare', 'kick'];
+        const synths = {
+            standard: {
+                kick: new Tone.MembraneSynth({
+                    pitchDecay: 0.05,
+                    octaves: 4,
+                    oscillator: { type: 'sine' },
+                    envelope: { attack: 0.01, decay: 0.4, sustain: 0.01, release: 1.4, attackCurve: 'exponential' }
+                }).connect(drumEffectChain),
+                hihat: new Tone.MetalSynth({
+                    frequency: 400,
+                    envelope: { attack: 0.001, decay: 0.1, release: 0.8 },
+                    harmonicity: 5.1,
+                    modulationIndex: 32,
+                    resonance: 4000,
+                    octaves: 1.5
+                }).connect(drumEffectChain),
+                snare: new Tone.NoiseSynth({
+                    noise: { type: 'white' },
+                    envelope: { attack: 0.001, decay: 0.2, sustain: 0 }
+                }).connect(drumEffectChain)
+            },
+            electro: {
+                kick: new Tone.MembraneSynth({
+                    pitchDecay: 0.02,
+                    octaves: 6,
+                    oscillator: { type: 'triangle' },
+                    envelope: { attack: 0.001, decay: 0.3, sustain: 0, release: 1.2, attackCurve: 'exponential' }
+                }).connect(drumEffectChain),
+                hihat: new Tone.MetalSynth({
+                    frequency: 300,
+                    envelope: { attack: 0.001, decay: 0.05, release: 0.6 },
+                    harmonicity: 6,
+                    modulationIndex: 24,
+                    resonance: 3000,
+                    octaves: 1.2
+                }).connect(drumEffectChain),
+                snare: new Tone.NoiseSynth({
+                    noise: { type: 'pink' },
+                    envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
+                }).connect(drumEffectChain)
+            }
+        };
+
+        currentSynths = synths[currentDrumPreset];
+
+        Tone.Transport.bpm.value = tempo;
+        drumEffectChain.gain.setValueAtTime(drumVolume / 100, Tone.context.currentTime);
+
+        // Create drum pads
+        function createDrumPads() {
+            drumPadsContainer.innerHTML = '';
+            sounds.forEach(sound => {
+                const row = document.createElement('div');
+                row.classList.add('drum-row');
+                const label = document.createElement('label');
+                label.textContent = sound.charAt(0).toUpperCase() + sound.slice(1);
+                row.appendChild(label);
+                for (let i = 0; i < rhythmLength; i++) {
+                    const pad = document.createElement('div');
+                    pad.classList.add('drum-pad');
+                    pad.dataset.sound = sound;
+                    pad.dataset.step = i;
+                    pad.addEventListener('click', () => {
+                        pad.classList.toggle('active');
+                    });
+                    row.appendChild(pad);
+                }
+                drumPadsContainer.appendChild(row);
+            });
+        }
+
+        // Create progress row
+        function createProgressRow() {
+            const progressRow = document.getElementById('progress-row');
+            progressRow.innerHTML = '';
+            for (let i = 0; i < rhythmLength; i++) {
+                const step = document.createElement('div');
+                step.classList.add('progress-step');
+                step.dataset.step = i;
+                progressRow.appendChild(step);
+            }
+        }
+
+        // Play drum rhythm
+        function playRhythm() {
+            let step = 0;
+            Tone.Transport.scheduleRepeat(time => {
+                const currentPads = document.querySelectorAll(`.drum-pad[data-step="${step}"]`);
+                const currentSteps = document.querySelectorAll(`.progress-step[data-step="${step}"]`);
+                document.querySelectorAll('.drum-pad').forEach(pad => pad.classList.remove('current'));
+                document.querySelectorAll('.progress-step').forEach(step => step.classList.remove('current'));
+                currentPads.forEach(pad => {
+                    pad.classList.add('current');
+                    if (pad.classList.contains('active')) {
+                        if (pad.dataset.sound === 'snare') {
+                            currentSynths[pad.dataset.sound].triggerAttackRelease("8n", time);
+                        } else {
+                            currentSynths[pad.dataset.sound].triggerAttackRelease("C3", "8n", time);
+                        }
+                    }
+                });
+                currentSteps.forEach(step => {
+                    step.classList.add('current');
+                });
+                step = (step + 1) % rhythmLength;
+            }, "8n");
+            Tone.Transport.start();
+        }
+
+        // Stop drum rhythm
+        function stopRhythm() {
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            document.querySelectorAll('.drum-pad').forEach(pad => pad.classList.remove('current'));
+            document.querySelectorAll('.progress-step').forEach(step => step.classList.remove('current'));
+        }
+
+        // Toggle play/stop for drum machine
+        function togglePlayStop() {
+            if (isPlaying) {
+                stopRhythm();
+                document.getElementById('play-stop').textContent = 'Play Drum Machine';
+            } else {
+                playRhythm();
+                document.getElementById('play-stop').textContent = 'Stop Drum Machine';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Load preset rhythms
+        function loadPreset(preset) {
+            const presets = {
+                standard: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 4]],
+                        ['hihat', [2, 6]],
+                        ['snare', [3, 7]]
+                    ]
+                },
+                electro: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 1, 2, 3, 4, 5, 6, 7]],
+                        ['hihat', [2, 6]],
+                        ['snare', [4]]
+                    ]
+                },
+                techno: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 2, 4, 6]],
+                        ['hihat', [1, 3, 5, 7]],
+                        ['snare', [4]]
+                    ]
+                },
+                pop: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 4]],
+                        ['hihat', [2, 6]],
+                        ['snare', [3, 7]]
+                    ]
+                },
+                rock: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 4]],
+                        ['hihat', [0, 1, 2, 3, 4, 5, 6, 7]],
+                        ['snare', [2, 6]]
+                    ]
+                },
+                house: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 2, 4, 6]],
+                        ['hihat', [1, 3, 5, 7]],
+                        ['snare', [2, 6]]
+                    ]
+                },
+                funk: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 3, 5]],
+                        ['hihat', [1, 3, 5, 7]],
+                        ['snare', [2, 4, 6]]
+                    ]
+                },
+                jazz: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 5]],
+                        ['hihat', [1, 2, 3, 4, 6, 7]],
+                        ['snare', [4]]
+                    ]
+                },
+                progressive: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 1, 2, 3, 4, 5, 6, 7]],
+                        ['hihat', [2, 4, 6]],
+                        ['snare', [3, 7]]
+                    ]
+                },
+                progressive2: {
+                    length: 8,
+                    patterns: [
+                        ['kick', [0, 1, 3, 5, 7]],
+                        ['hihat', [1, 3, 5, 7]],
+                        ['snare', [2, 4, 6]]
+                    ]
+                }
+            };
+
+            const selectedPreset = presets[preset];
+            if (selectedPreset) {
+                rhythmLength = selectedPreset.length;
+                document.getElementById('length').value = rhythmLength;
+                createDrumPads();
+                selectedPreset.patterns.forEach(([sound, steps]) => {
+                    steps.forEach(step => {
+                        const pad = document.querySelector(`.drum-pad[data-sound="${sound}"][data-step="${step}"]`);
+                        if (pad) {
+                            pad.classList.add('active');
+                        }
+                    });
+                });
+            }
+        }
+
+        // Handle drum sound change
+        function handleDrumSoundChange(event) {
+            const selectedSound = event.target.value;
+            currentDrumPreset = selectedSound;
+            currentSynths = synths[currentDrumPreset];
+        }
+
+        // Toggle effect (reverb or distortion)
+        function toggleEffect(button, effect, isActive) {
+            if (isActive) {
+                drumEffectChain.disconnect(effect);
+                button.classList.remove('active');
+            } else {
+                drumEffectChain.connect(effect);
+                button.classList.add('active');
+            }
+            return !isActive;
+        }
+
+        let isReverbActive = false;
+        let isDistortionActive = false;
+
+        document.getElementById('reverb-button').addEventListener('click', () => {
+            isReverbActive = toggleEffect(document.getElementById('reverb-button'), drumReverb, isReverbActive);
+        });
+
+        document.getElementById('distortion-button').addEventListener('click', () => {
+            isDistortionActive = toggleEffect(document.getElementById('distortion-button'), drumDistortion, isDistortionActive);
+        });
+
+        document.getElementById('length').addEventListener('change', (e) => {
+            rhythmLength = parseInt(e.target.value);
+            createDrumPads();
+            if (isPlaying) {
+                stopRhythm();
+                playRhythm();
+            }
+        });
+
+        document.getElementById('play-stop').addEventListener('click', togglePlayStop);
+        document.getElementById('preset').addEventListener('change', (e) => {
+            loadPreset(e.target.value);
+        });
+        document.getElementById('drum-sound').addEventListener('change', handleDrumSoundChange);
+
+        createDrumPads();
+        loadPreset('standard');
+
+        // Toggle About popup
+        function toggleAbout() {
+            const aboutPopup = document.getElementById('about-popup');
+            aboutPopup.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
