@@ -406,6 +406,10 @@
             key.className = 'key';
             key.dataset.frequency = frequency;
             key.innerText = label;
+            key.setAttribute('tabindex', '0');
+            key.setAttribute('role', 'button');
+            key.addEventListener('keydown', (e) => {if (e.key === ' ' || e.key === 'Enter') { handleKeyToggle(frequency, key); e.preventDefault(); } });
+            key.addEventListener('keyup', (e) => {if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleKeyUp(frequency, key); } });
             key.addEventListener('mousedown', () => handleKeyToggle(frequency, key));
             key.addEventListener('mouseup', () => handleKeyUp(frequency, key));
             key.addEventListener('touchstart', (e) => {
@@ -690,8 +694,16 @@
                     pad.classList.add('drum-pad');
                     pad.dataset.sound = sound;
                     pad.dataset.step = i;
+                    pad.setAttribute('role', 'button');
+                    pad.setAttribute('tabindex', '0');
+                    pad.setAttribute('aria-pressed', 'false');
+                    pad.addEventListener('keypress', (e) => {if (e.key === " " || e.key === "Enter") {pad.click(); e.preventDefault()} }) ;
                     pad.addEventListener('click', () => {
                         pad.classList.toggle('active');
+
+                        // togle value true/false of aria-pressed
+                        if (pad.getAttribute('aria-pressed') === "false"){ pad.setAttribute('aria-pressed', 'true'); }
+                        else if (pad.getAttribute('aria-pressed') === "true"){ pad.setAttribute('aria-pressed', 'false'); }
                     });
                     row.appendChild(pad);
                 }
@@ -852,6 +864,7 @@
                         const pad = document.querySelector(`.drum-pad[data-sound="${sound}"][data-step="${step}"]`);
                         if (pad) {
                             pad.classList.add('active');
+                            pad.setAttribute('aria-pressed', 'true');
                         }
                     });
                 });
