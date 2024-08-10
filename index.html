@@ -694,6 +694,9 @@
                     pad.classList.add('drum-pad');
                     pad.dataset.sound = sound;
                     pad.dataset.step = i;
+                    pad.setAttribute('role', 'button');
+                    pad.setAttribute('tabindex', '0');
+                    pad.addEventListener('keypress', (e) => { if (e.key === " " || e.key === "Enter") pad.click(); e.preventDefault() }) ;
                     pad.addEventListener('click', () => {
                         pad.classList.toggle('active');
                     });
