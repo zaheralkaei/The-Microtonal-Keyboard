@@ -1,8 +1,10 @@
 # The Microtonal Keyboard
-A microtonal keyboard with different EDOs (equal divisions per octave)
+A microtonal keyboard with different <abbr>EDO<abbr>s (equal divisions per octave)
 
 This web application is designed to provide a microtonal keyboard interface
 with various equal divisions of the octave (<abbr>EDO</abbr>) and drum machine functionality.
 It allows users to experiment with different microtonal scales and create rhythms using synthesized drum sounds.
-The application is built using the Tone.js library for audio synthesis and manipulation.
-Developed by Zaher Alkaei. This is a fork. You can find the original author's source code <a rel="canonical">https://github.com/zaheralkaei/themicrotonalkeyboard</a>.
+The application is built using the <i>Tone.js library</i> for audio synthesis and manipulation.
+<strong>This is a fork. The original code is developed by Zaher Alkaei.</strong>
+You can find the original author's source code at
+<a rel="canonical">https://github.com/zaheralkaei/themicrotonalkeyboard</a>.</strong>
