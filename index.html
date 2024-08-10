@@ -406,6 +406,10 @@
             key.className = 'key';
             key.dataset.frequency = frequency;
             key.innerText = label;
+            key.setAttribute('tabindex', '0');
+            key.setAttribute('role', 'button');
+            key.addEventListener('keydown', (e) => {if (e.key === ' ' || e.key === 'Enter') { handleKeyToggle(frequency, key); e.preventDefault(); } });
+            key.addEventListener('keyup', (e) => {if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleKeyUp(frequency, key); } });
             key.addEventListener('mousedown', () => handleKeyToggle(frequency, key));
             key.addEventListener('mouseup', () => handleKeyUp(frequency, key));
             key.addEventListener('touchstart', (e) => {
