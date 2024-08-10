@@ -696,12 +696,16 @@
                     pad.dataset.step = i;
                     pad.setAttribute('role', 'button');
                     pad.setAttribute('tabindex', '0');
-                    pad.addEventListener('keypress', (e) => { if (e.key === " " || e.key === "Enter") pad.click(); e.preventDefault() }) ;
+                    pad.setAttribute('aria-pressed', 'false');
+                    pad.addEventListener('keypress', (e) => {if (e.key === " " || e.key === "Enter") {pad.click(); e.preventDefault()} }) ;
                     pad.addEventListener('click', () => {
                         pad.classList.toggle('active');
-                    });
-                    row.appendChild(pad);
-                }
+                        // togle value true/false of aria-pressed
+                        if (pad.getAttribute('aria-pressed') === "false"){ pad.setAttribute('aria-pressed', 'true'); }
+                        else if (pad.getAttribute('aria-pressed') === "true"){ pad.setAttribute('aria-pressed', 'false'); }
+					});
+					row.appendChild(pad);
+				}
                 drumPadsContainer.appendChild(row);
             });
         }
