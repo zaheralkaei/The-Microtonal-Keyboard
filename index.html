@@ -44,6 +44,10 @@
         }
 
         /* Styles for control buttons and sliders */
+        .controls select {
+            scrollbar-width: thin;
+        } /* @supports not (scrollbar-width: thin){ .controls select::-webkit-scrollbar { width: 9px; } } */
+
         .controls button, .controls select {
             margin: 5px;
             padding: 10px;
@@ -59,7 +63,7 @@
         .controls button:hover, .controls select:focus-within {
             background-color: #FF6F61; 
             color: #FFFFFF; 
-            border-color: #333333; 
+            border-color: #333333;
         }
 
         .controls button.active {
