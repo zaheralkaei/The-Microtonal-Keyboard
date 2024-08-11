@@ -72,9 +72,20 @@
         }
 
         /* Styles for volume, tempo, and drum volume sliders */
+		[id="volume-container"] {
+			display: grid;
+			grid-template-columns: 17.3ch 300px 8ch;
+			justify-items: flex-end;
+			justify-content: center;
+			align-items: center;
+			row-gap: 20px;
+			grid-auto-rows: min-content;
+			padding-bottom: 20px;
+		}
+
         .slider-container {
             margin-bottom: 20px;
-            display: flex;
+            display: contents;
             justify-content: center;
             align-items: center;
         }
