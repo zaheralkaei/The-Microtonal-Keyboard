@@ -43,6 +43,15 @@
             transform: scale(1.1);
         }
 
+	.key:focus-visible {
+            outline: double #ff6f61 6px;
+            outline-offset: -4px;
+	}
+
+	.pressed.key:focus-visible {
+            outline: none;
+	}
+
         /* Styles for control buttons and sliders */
         .controls select {
             scrollbar-width: thin;
