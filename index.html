@@ -73,7 +73,7 @@
             transition: all 0.3s ease;
         }
 
-        .controls button:hover, .controls select:focus-within, .controls select:hover {
+        .controls button:hover, .controls button:focus-visible, .controls select:focus-within, .controls select:hover {
             background-color: #FF6F61; 
             color: #FFFFFF; 
             border-color: #333333;
@@ -244,6 +244,11 @@
             background-color: #F0F0F0; 
             color: #FF6F61; 
         }
+
+		#about-btn:focus-visible {
+			outline: double #000 6px;
+			outline-offset: -4px;
+		}/* */
     </style>
 </head>
 <body>
