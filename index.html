@@ -43,9 +43,13 @@
             transform: scale(1.1);
         }
 
-	.key:focus-visible {
+	.key:focus-visible, .drum-pad:focus-visible {
             outline: double #ff6f61 6px;
             outline-offset: -4px;
+	}
+
+	.active.drum-pad:focus-visible {
+	    outline-color: black;
 	}
 
 	.pressed.key:focus-visible {
