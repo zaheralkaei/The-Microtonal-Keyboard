@@ -43,18 +43,19 @@
             transform: scale(1.1);
         }
 
-	.key:focus-visible, .drum-pad:focus-visible {
+    .key:focus-visible, .drum-pad:focus-visible {
             outline: double #ff6f61 6px;
             outline-offset: -4px;
-	}
+    }
 
-	.active.drum-pad:focus-visible {
-	    outline-color: black;
-	}
+    .active.drum-pad:focus-visible {
+        outline-color: black;
+        border-color: #FF6F61;
+    }
 
-	.pressed.key:focus-visible {
+    .pressed.key:focus-visible {
             outline: none;
-	}
+    }
 
         /* Styles for control buttons and sliders */
         .controls select {
@@ -85,19 +86,19 @@
         }
 
         /* Styles for volume, tempo, and drum volume sliders */
-		
-		.value-indicator { justify-self: start; }
-		
-		[id="volume-container"] {
-			display: grid;
-			grid-template-columns: auto auto auto;
-			justify-items: flex-end;
-			justify-content: center;
-			align-items: center;
-			gap: 20px 9px;
-			grid-auto-rows: min-content;
-			padding-bottom: 20px;
-		}
+        
+        .value-indicator { justify-self: start; }
+        
+        [id="volume-container"] {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            justify-items: flex-end;
+            justify-content: center;
+            align-items: center;
+            gap: 20px 9px;
+            grid-auto-rows: min-content;
+            padding-bottom: 20px;
+        }
 
         .slider-container {
             display: contents;
@@ -116,8 +117,8 @@
         }
 
         #volume-slider:hover, #volume-slider:focus-visible,
-	#tempo-slider:hover, #tempo-slider:focus-visible,
-	#drum-volume-slider:hover, #drum-volume-slider:focus-visible {
+        #tempo-slider:hover, #tempo-slider:focus-visible,
+        #drum-volume-slider:hover, #drum-volume-slider:focus-visible {
             opacity: 1;
         }
 
@@ -131,12 +132,17 @@
             border-radius: 10px;
         }
 
+
         #volume-slider::-moz-range-thumb, #tempo-slider::-moz-range-thumb, #drum-volume-slider::-moz-range-thumb {
             width: 20px;
             height: 20px;
             background: #FF6F61; 
             cursor: pointer;
             border-radius: 15px;
+        }
+
+        #volume-slider:focus-visible::-moz-range-thumb, #tempo-slider:focus-visible::-moz-range-thumb, #drum-volume-slider:focus-visible::-moz-range-thumb/*, #tempo-slider::-moz-range-thumb, #drum-volume-slider::-moz-range-thumb*/{
+            border: solid 3px black;
         }
 
         /* Styles for drum pads and progress steps */
@@ -247,11 +253,11 @@
             color: #FF6F61; 
         }
 
-	#about-btn:focus-visible {
+        #about-btn:focus-visible, .close-btn:focus-visible {
             outline: double #000 6px;
-	    outline-offset: -4px;
-	    border-color: #FF6F61;
-	}
+            outline-offset: -4px;
+            border-color: #FF6F61;
+    }
     </style>
 </head>
 <body>
