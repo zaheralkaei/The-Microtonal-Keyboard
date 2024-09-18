@@ -43,7 +43,25 @@
             transform: scale(1.1);
         }
 
+    .key:focus-visible, .drum-pad:focus-visible {
+            outline: double #ff6f61 6px;
+            outline-offset: -4px;
+    }
+
+    .active.drum-pad:focus-visible {
+        outline-color: black;
+        border-color: #FF6F61;
+    }
+
+    .pressed.key:focus-visible {
+            outline: none;
+    }
+
         /* Styles for control buttons and sliders */
+        .controls select {
+            scrollbar-width: thin;
+        } /* @supports not (scrollbar-width: thin){ .controls select::-webkit-scrollbar { width: 9px; } } */
+
         .controls button, .controls select {
             margin: 5px;
             padding: 10px;
@@ -56,10 +74,10 @@
             transition: all 0.3s ease;
         }
 
-        .controls button:hover, .controls select:hover {
+        .controls button:hover, .controls button:focus-visible, .controls select:focus-within, .controls select:hover {
             background-color: #FF6F61; 
             color: #FFFFFF; 
-            border-color: #333333; 
+            border-color: #333333;
         }
 
         .controls button.active {
@@ -68,16 +86,24 @@
         }
 
         /* Styles for volume, tempo, and drum volume sliders */
-        .slider-container {
-            margin-bottom: 20px;
-            display: flex;
+        
+        .value-indicator { justify-self: start; }
+        
+        [id="volume-container"] {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            justify-items: flex-end;
             justify-content: center;
             align-items: center;
+            gap: 20px 9px;
+            grid-auto-rows: min-content;
+            padding-bottom: 20px;
         }
 
-        .slider-label {
-            margin-right: 10px;
+        .slider-container {
+            display: contents;
         }
+
 
         #volume-slider, #tempo-slider, #drum-volume-slider {
             width: 300px;
@@ -90,7 +116,9 @@
             transition: opacity .2s;
         }
 
-        #volume-slider:hover, #tempo-slider:hover, #drum-volume-slider:hover {
+        #volume-slider:hover, #volume-slider:focus-visible,
+        #tempo-slider:hover, #tempo-slider:focus-visible,
+        #drum-volume-slider:hover, #drum-volume-slider:focus-visible {
             opacity: 1;
         }
 
@@ -104,12 +132,17 @@
             border-radius: 10px;
         }
 
+
         #volume-slider::-moz-range-thumb, #tempo-slider::-moz-range-thumb, #drum-volume-slider::-moz-range-thumb {
             width: 20px;
             height: 20px;
             background: #FF6F61; 
             cursor: pointer;
             border-radius: 15px;
+        }
+
+        #volume-slider:focus-visible::-moz-range-thumb, #tempo-slider:focus-visible::-moz-range-thumb, #drum-volume-slider:focus-visible::-moz-range-thumb/*, #tempo-slider::-moz-range-thumb, #drum-volume-slider::-moz-range-thumb*/{
+            border: solid 3px black;
         }
 
         /* Styles for drum pads and progress steps */
@@ -219,6 +252,12 @@
             background-color: #F0F0F0; 
             color: #FF6F61; 
         }
+
+        #about-btn:focus-visible, .close-btn:focus-visible, .controls select:focus-visible, .controls button:focus-visible {
+            outline: double #000 6px;
+            outline-offset: -4px;
+            border-color: #FF6F61;
+    }
     </style>
 </head>
 <body>
@@ -261,17 +300,17 @@
         <div class="slider-container">
             <label for="volume-slider" class="slider-label">Volume (%)</label>
             <input type="range" id="volume-slider" min="0" max="100" value="50">
-            <span id="volume-value">50%</span>
+            <span class="value-indicator" id="volume-value">50%</span>
         </div>
         <div class="slider-container">
             <label for="tempo-slider" class="slider-label">Tempo (BPM)</label>
             <input type="range" id="tempo-slider" min="30" max="240" value="120">
-            <span id="tempo-value">120 BPM</span>
+            <span class="value-indicator" id="tempo-value">120 BPM</span>
         </div>
         <div class="slider-container">
             <label for="drum-volume-slider" class="slider-label">Drum Volume (%)</label>
             <input type="range" id="drum-volume-slider" min="0" max="100" value="50">
-            <span id="drum-volume-value">50%</span>
+            <span class="value-indicator" id="drum-volume-value">50%</span>
         </div>
     </div>
     <div class="controls">
